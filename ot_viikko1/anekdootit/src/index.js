@@ -7,46 +7,69 @@ const Button = ({onClick, text}) => (
   </button>
 )
 
-const points = new Array(6).fill(0)
-
-const Aanet = ({ selected, points, display_points }) => {
+const Aanet = ({ selected, points}) => {
   
   return (
-  <p>has {display_points} votes</p>
+  <p>has {points[selected]} votes</p>
 )}
+
+const EnitenAania = ({ anecdotes, selected, points}) => {
+  let suurin = 0
+  let tmp = 0         //tallennetaan suurimman indeksi
+  let i
+  
+  for (i = 0; i < points.length; i++) {
+    if (points[i] > suurin) {
+      suurin = points[i]
+      tmp = i
+    }
+  }
+
+  return (
+    <div>
+      <p>{anecdotes[tmp]}</p>
+      <p>has {suurin} votes</p>
+    </div>
+  )}
 
 const App = (props) => {
   const [selected, setSelected] = useState(0)
-  const copy = [...points]
   const [display_points, setDisplayPoints] = useState(0)
-
-  console.log(points)
+  
 
   const handleNextAnecdote = () => {
     const num = Math.floor(Math.random() * 6);
+    setDisplayPoints(points[selected])
     setSelected(num)
+  }
+  
+  const handleVote = () => {
+    const copy = [...points]
+    copy[selected] += 1
+
+    points[selected] = copy[selected]
     setDisplayPoints(points[selected])
   }
-
-  const handleVote = () => {
-    points[selected] += 1
-    copy[selected] += 1
-    console.log(points[selected])
-    setDisplayPoints(points[selected])
-    }
 
   return (
     <div>
       <div>
+        <h1>Anecdote of the day</h1>
         {props.anecdotes[selected]}
-        <Aanet selected={selected} points={points} display_points={display_points} />
+        <Aanet selected={selected} points={points}/>
       </div>
       <Button onClick={handleVote} text='vote'/>
       <Button onClick={handleNextAnecdote} text='next anecdote'/>
+      <div>
+        <h1>Anecdote with most votes</h1>
+        <EnitenAania anecdotes={props.anecdotes} selected={selected} points={points}/>
+      </div>
     </div>
     
   )
 }
+
+const points = new Array(6).fill(0)
 
 const anecdotes = [
   'If it hurts, do it more often',
