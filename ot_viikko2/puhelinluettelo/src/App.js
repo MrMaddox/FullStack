@@ -1,24 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-//import ShowNames from './components/ShowNames'
+import ShowNames from './components/ShowNames'
 import NewPerson from './components/NewPerson'
 import Filter from './components/Filter'
-
-const ShowNames = ( {personsToShow} ) => {
-  return (
-    <ul>
-      {personsToShow.map((person) =>
-      <Person key={person.name} person={person}/> 
-      )}
-      </ul>
-  )
-}
-
-const Person = ({ person }) => {
-  return (
-  <li>{person.name} {person.number}</li>
-  )
-}
 
 const App = () => {
   const [ persons, setPersons] = useState([]) 

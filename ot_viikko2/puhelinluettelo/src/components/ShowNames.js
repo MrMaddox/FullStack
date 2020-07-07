@@ -1,6 +1,7 @@
 import React from 'react';
 
 const ShowNames = ( {personsToShow} ) => {
+  console.log('tässä', personsToShow)
     return (
       <ul>
         {personsToShow.map((person) =>
