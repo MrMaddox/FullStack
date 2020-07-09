@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import ShowNames from './components/ShowNames'
 import NewPerson from './components/NewPerson'
 import Filter from './components/Filter'
+import personService from './services/persons'
+import Notifications from './components/Notifications'
 
 const App = () => {
   const [ persons, setPersons] = useState([]) 
@@ -10,12 +11,13 @@ const App = () => {
   const [ newNumber, setNewNumber ] = useState('')
   const [showAll, setShowAll] = useState(true)
   const [ newFilter, setNewFilter ] = useState('')
+  const [message, setMessage] = useState(null)
 
   useEffect(() => {
-    axios
-    .get('http://localhost:3001/persons')
-    .then(response => {
-      setPersons(response.data)
+    personService
+    .getAll()
+    .then(initialPersons => {
+      setPersons(initialPersons)
     })
   }, [])
 
@@ -27,19 +29,58 @@ const App = () => {
       number: newNumber
     }
 
-
     for (let i = 0; i < persons.length; i++) {
       if (personObj.name === persons[i].name) {
-        alert(`${personObj.name} is already added to phonebook`)
-        setNewName('')
-        setNewNumber('')
-        return
+        if (personObj.number === persons[i].number) {
+          alert(`${personObj.name} is already added to phonebook`)
+          setNewName('')
+          setNewNumber('')
+          return
+        }
+        const result = window.confirm(`${personObj.name} is already added to phonebook, replace the old number with a new one?`)
+
+        if (result === true) {
+          const personObj_number = {
+            name: persons[i].name,
+            number: newNumber
+          }
+
+          personService
+          .update(persons[i].id, personObj_number)
+          console.log(persons)
+          setNewName('')
+          setNewNumber('')
+          setMessage(
+            `${persons[i].name} phone number changed to ${personObj_number.number}`
+          )
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
+          //window.location.reload(false); <-- tarvittaisiin, että tiedot päivittyvät! TODO
+          return 
+        }
+        else if (result === false) {
+          setNewName('')
+          setNewNumber('')
+          return
+        }
       }
     }
 
-    setPersons(persons.concat(personObj))
-    setNewName('')
-    setNewNumber('')
+    personService
+    .create(personObj)
+    .then(returnedPerson => {
+      console.log(returnedPerson)
+      setPersons(persons.concat(returnedPerson))
+      setNewName('')
+      setNewNumber('')
+      setMessage(
+        `Added ${returnedPerson.name}`
+      )
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000)
+    })
   }
 
   const handleNameChange = (event) => {
@@ -63,12 +104,13 @@ const App = () => {
 
   return (
     <div>
-      <h2>Phonebook</h2>
+      <h1>Phonebook</h1>
+      <Notifications message={message} />
       <Filter newFilter={newFilter} handleFilterChange={handleFilterChange}/>
       <h2>add a new</h2>
       <NewPerson addPerson={addPerson} newName={newName} newNumber={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} />
       <h2>Numbers</h2>
-      <ShowNames personsToShow={personsToShow} />
+      <ShowNames personsToShow={personsToShow} setPersons={setPersons} setMessage={setMessage}/>
     </div>
   )
 }
