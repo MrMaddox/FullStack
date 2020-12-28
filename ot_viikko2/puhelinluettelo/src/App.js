@@ -47,7 +47,6 @@ const App = () => {
 
           personService
           .update(persons[i].id, personObj_number)
-          console.log(persons)
           setNewName('')
           setNewNumber('')
           setMessage(
@@ -56,7 +55,6 @@ const App = () => {
           setTimeout(() => {
             setMessage(null)
           }, 5000)
-          //window.location.reload(false); <-- tarvittaisiin, että tiedot päivittyvät! TODO
           return 
         }
         else if (result === false) {
